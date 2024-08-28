@@ -16,7 +16,13 @@ $ source venv/bin/activate
 $ python -m pip install -r requirements.txt
 $ python -m streamlit run app.py
 ```
+```bash windows
+$ python -m venv venv
+$ source venv/Scripts/activate
+$ python -m pip install -r requirements.txt
+$ python -m streamlit run app.py
 
+```
 # To run on modal:
 
 Make sure you have a [Modal account](https://modal.com/). 
