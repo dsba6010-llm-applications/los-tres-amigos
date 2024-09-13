@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # modal-streamlit-chat
 
 First, create a `.streamlit/secrets.toml` file such that:
@@ -50,3 +51,9 @@ Or deploy it as a new app to modal:
 $ modal deploy modal/serve_streamlit.py
 ```
 
+=======
+# los-tres-amigos
+Group 2
+
+[Google Drive](https://drive.google.com/drive/folders/1xqffRnx4d50VgeSR3pDII54lsyZi6U1Y?usp=drive_link)
+>>>>>>> c298293e307da1a53076735716212dfd4436463a
