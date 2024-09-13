@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # modal-streamlit-chat
 
 First, create a `.streamlit/secrets.toml` file such that:
@@ -19,7 +19,7 @@ $ python -m streamlit run app.py
 ```
 ```bash windows
 $ python -m venv venv
-$ source venv/Scripts/activate
+$ venv/Scripts/activate
 $ python -m pip install -r requirements.txt
 $ python -m streamlit run app.py
 
@@ -56,4 +56,5 @@ $ modal deploy modal/serve_streamlit.py
 Group 2
 
 [Google Drive](https://drive.google.com/drive/folders/1xqffRnx4d50VgeSR3pDII54lsyZi6U1Y?usp=drive_link)
->>>>>>> c298293e307da1a53076735716212dfd4436463a
+
+
