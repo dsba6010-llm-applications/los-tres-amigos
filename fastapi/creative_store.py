@@ -14,6 +14,7 @@ from whoosh.qparser import QueryParser
 from whoosh.query import Or, And, Term
 
 from openai import OpenAI
+import numpy as np
 
 client = OpenAI(
     base_url='http://localhost:11434/v1/',
@@ -25,6 +26,7 @@ client = OpenAI(
 
 CREATIVE_DOCS="/Users/rich/UNCC-DataScience/DSBA-6010/CreativeWorks"
 KW_INDEX="kw"
+CD_CONTENT="content"
 class CreativeStore(RAGStore):
 
     def __init__(self):
@@ -68,6 +70,22 @@ class CreativeStore(RAGStore):
 
         writer.commit()
         self.add_i_index("kw", index.searcher(weighting=scoring.BM25F()))
+        self.embed_content()
+    
+    def embed_content(self):
+
+        raw_embeddings=list()
+        fileroots=list()
+        for fileroot in self.content:
+            raw_embeddings.append(self.get_embedding(self.content[fileroot]['content']))
+            fileroots.append(fileroot)
+        
+        embeddings = np.array(raw_embeddings).astype('float32')
+        dim = embeddings.shape[1]
+        vs = faiss.IndexFlatL2(dim)
+        vs.add(embeddings)
+        self.add_v_store(CD_CONTENT,vs,fileroots)    
+
 
     def get_content(self):
         return self.content
@@ -80,10 +98,10 @@ class CreativeStore(RAGStore):
             works.append(result)
         return works
     
-    def get_embedding(self,content):
+    def get_embedding(self,content,query_convert=False):
         embeddings = client.embeddings.create(
             model="mistral",
             input=content
         )
 
-        return embeddings.data[0].embedding
+        return np.array(embeddings.data[0].embedding).astype('float32').reshape(1, -1) if query_convert else embeddings.data[0].embedding

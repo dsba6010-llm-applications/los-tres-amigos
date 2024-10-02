@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from creative_store import CreativeStore
+from creative_store import CreativeStore, CD_CONTENT
 app = FastAPI()
 c_store = CreativeStore()
 
@@ -20,6 +20,6 @@ def get_content():
 async def find_word(word: str):
     return c_store.find_word_in_content(word)
 
-@app.get("/embedding/{phrase}")
-async def embed_phrase(phrase: str):
-    return c_store.get_embedding(phrase)
+@app.get("/search/{phrase}/{k}")
+async def search_phrase(phrase: str,k: int):
+    return c_store.semantic_search(CD_CONTENT,c_store.get_embedding(phrase,query_convert=True),k)

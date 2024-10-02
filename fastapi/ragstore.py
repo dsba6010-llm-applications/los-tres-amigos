@@ -1,6 +1,6 @@
 import numpy as np
 import faiss  # Or any other vector store you choose
-
+import json
 
 from whoosh import scoring
 
@@ -25,7 +25,7 @@ class RAGStore():
         results = list()
         for i in range(len(I[0])):
             results.append(dict({
-                N_DISTANCE: D[0][i],
+                N_DISTANCE: float(D[0][i]),
                 N_ITEM: xref[I[0][i]]
             }))
         return results
