@@ -102,7 +102,7 @@ class CreativeStore(RAGStore):
     
     def get_embedding(self,content,query_convert=False):
         embeddings = client.embeddings.create(
-            model="mistral",
+            model=CONFIG["EMBEDDING_MODEL"],
             input=content
         )
 
