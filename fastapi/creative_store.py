@@ -16,15 +16,17 @@ from whoosh.query import Or, And, Term
 from openai import OpenAI
 import numpy as np
 
+CONFIG = json.load(open("config.json"))
+
 client = OpenAI(
-    base_url='http://localhost:11434/v1/',
+    base_url=CONFIG["LLM_URL"],
 
     # required but ignored
     api_key='ollama',
 )
 
 
-CREATIVE_DOCS="/Users/rich/UNCC-DataScience/DSBA-6010/CreativeWorks"
+CREATIVE_DOCS=CONFIG["DOCS_HOME"]
 KW_INDEX="kw"
 CD_CONTENT="content"
 class CreativeStore(RAGStore):
