@@ -90,7 +90,7 @@ class CreativeStore(RAGStore):
 
 
     def get_content(self):
-        return self.content
+        return self.content 
 
     def find_word_in_content(self, keyword):
         query = QueryParser("content", self.i_indexes[KW_INDEX].schema).parse(keyword)
