@@ -16,9 +16,10 @@ N_V_STORE="v_store"
 N_XREF="xref"
 
 class RAGStore():
-    def __init__(self):
+    def __init__(self,corpus=None):
         self.v_stores=dict()
         self.i_indexes=dict()
+        self.corpus=corpus
 
     def distance_xref(self,res,xref):
         (D,I) = res
