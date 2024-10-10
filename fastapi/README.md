@@ -1,5 +1,10 @@
 # Chatbot Backend API
 
+## FastAPI REST Endpoint
+
+This is a work in progress that has a demo based upon an early implementation of the CreativeStore.
+
+We are working on providing a RAGStore and RAGCorpus set of base classes to support the createion of Application Specific RAG Stores and Corpora
 
 
 ##  RAG Store
