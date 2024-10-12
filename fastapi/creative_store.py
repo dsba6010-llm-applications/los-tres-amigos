@@ -15,6 +15,9 @@ from whoosh.query import Or, And, Term
 
 from openai import OpenAI
 import numpy as np
+import creative_corpus as cc
+#from rag_corpus import Corpus, Partition, Document, Segment, Chunk, Schema
+from creative_corpus import CreativeCorpus
 
 CONFIG = json.load(open("config.json"))
 
@@ -27,26 +30,13 @@ client = OpenAI(
 
 
 CREATIVE_DOCS=CONFIG["DOCS_HOME"]
-KW_INDEX="kw"
+KW_INDEX="keyword"
 CD_CONTENT="content"
+CD_TITLE="title"
 class CreativeStore(RAGStore):
 
     def __init__(self):
-        super().__init__()
-        LYRICS_INDEX_FILE = IMAGE_FOLDER = os.path.join(CREATIVE_DOCS, 'lyrics.json')
-        LYRICS_FACETS_FILE = IMAGE_FOLDER = os.path.join(CREATIVE_DOCS, 'lyrics_facets.json')
-        LYRICS_INDEX = json.load(open(LYRICS_INDEX_FILE,'r'))
-        LYRICS_FACETS = json.load(open(LYRICS_FACETS_FILE,'r'))
-        CONTENT = dict()
-        for title, fileroot in LYRICS_INDEX.items():
-            CONTENT[fileroot] = {
-                'title': title,
-                'content': open(os.path.join(CREATIVE_DOCS,f"{fileroot}.txt"),'r').read()
-            }
-        for fileroot in LYRICS_FACETS:
-            CONTENT[fileroot]['category'] = LYRICS_FACETS[fileroot]['category']
-            CONTENT[fileroot]['genre'] = LYRICS_FACETS[fileroot]['genre']
-        self.content = CONTENT
+        super().__init__(corpus = CreativeCorpus())
         self.index_content()
 
     def index_content(self):
@@ -61,26 +51,30 @@ class CreativeStore(RAGStore):
         index = storage.create_index(schema)
         writer = index.writer()
 
-        for fileroot in self.content:
+        # Iterate through the documents' chunks in the content partition
+        for fileroot in self.corpus.documents:
             writer.add_document(
                 id=fileroot,
-                title=self.content[fileroot]['title'],
-                content=self.content[fileroot]['content'],
-                category=self.content[fileroot]['category'],
-                genre=self.content[fileroot]['genre']
+                title=self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].metadata['title'],
+                content=self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].get_i_content(),
+                category=self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].metadata['category'],
+                genre=self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].metadata['genre']
             )
 
         writer.commit()
-        self.add_i_index("kw", index.searcher(weighting=scoring.BM25F()))
+        self.add_i_index(KW_INDEX, index.searcher(weighting=scoring.BM25F()))
         self.embed_content()
     
     def embed_content(self):
 
+        # Embed Content
         raw_embeddings=list()
         fileroots=list()
-        for fileroot in self.content:
-            raw_embeddings.append(self.get_embedding(self.content[fileroot]['content']))
-            fileroots.append(fileroot)
+        for fileroot in self.corpus.documents:
+            raw_embeddings.append(self.get_embedding(self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].get_v_content()))
+            fileroots.append(f"{fileroot}.content")
+            raw_embeddings.append(self.get_embedding(self.corpus.documents[fileroot].chunks[f"{fileroot}.title"].get_v_content()))
+            fileroots.append(f"{fileroot}.title")
         
         embeddings = np.array(raw_embeddings).astype('float32')
         dim = embeddings.shape[1]
@@ -90,7 +84,24 @@ class CreativeStore(RAGStore):
 
 
     def get_content(self):
-        return self.content 
+        content=dict()
+        for doc_id in self.corpus.documents:
+            doc = self.corpus.documents[doc_id]
+            content[doc_id] = dict()
+            content[doc_id]["segments"]=dict()
+            for segment_id in doc.segments:
+                content[doc_id]["segments"][segment_id] = doc.segments[segment_id].content
+            content[doc_id]["chunks"]=dict()
+            for chunk_id in doc.chunks:
+                content[doc_id]["chunks"][chunk_id] = dict()
+                content[doc_id]["chunks"][chunk_id]["partition_id"] = doc.chunks[chunk_id].partition_id
+                content[doc_id]["chunks"][chunk_id]["segment_ids"] = list(doc.chunks[chunk_id].segment_ids)
+                content[doc_id]["chunks"][chunk_id]["metadata"] = doc.chunks[chunk_id].metadata
+                content[doc_id]["chunks"][chunk_id]["i_content"] = doc.chunks[chunk_id].get_i_content()
+                content[doc_id]["chunks"][chunk_id]["v_content"] = doc.chunks[chunk_id].get_v_content()
+                
+            
+        return content 
 
     def find_word_in_content(self, keyword):
         query = QueryParser("content", self.i_indexes[KW_INDEX].schema).parse(keyword)
