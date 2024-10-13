@@ -16,6 +16,10 @@ async def add_item(addend1: int,addend2 :int):
 def get_content():
     return c_store.get_content()
 
+@app.get("/doc/{doc_id}")
+async def get_content(doc_id: str):
+    return c_store.get_document(doc_id)
+
 @app.get("/find/{word}")
 async def find_word(word: str):
     return c_store.find_word_in_content(word)

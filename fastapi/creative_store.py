@@ -33,6 +33,7 @@ CREATIVE_DOCS=CONFIG["DOCS_HOME"]
 KW_INDEX="keyword"
 CD_CONTENT="content"
 CD_TITLE="title"
+CD_BOTH="both"
 class CreativeStore(RAGStore):
 
     def __init__(self):
@@ -70,17 +71,37 @@ class CreativeStore(RAGStore):
         # Embed Content
         raw_embeddings=list()
         fileroots=list()
+        raw_embeddings_title=list()
+        fileroots_title=list()
+        raw_embeddings_content=list()
+        fileroots_content=list()
         for fileroot in self.corpus.documents:
             raw_embeddings.append(self.get_embedding(self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].get_v_content()))
             fileroots.append(f"{fileroot}.content")
             raw_embeddings.append(self.get_embedding(self.corpus.documents[fileroot].chunks[f"{fileroot}.title"].get_v_content()))
             fileroots.append(f"{fileroot}.title")
+            raw_embeddings_content.append(self.get_embedding(self.corpus.documents[fileroot].chunks[f"{fileroot}.content"].get_v_content()))
+            fileroots_content.append(f"{fileroot}.content")
+            raw_embeddings_title.append(self.get_embedding(self.corpus.documents[fileroot].chunks[f"{fileroot}.title"].get_v_content()))
+            fileroots_title.append(f"{fileroot}.title")
         
         embeddings = np.array(raw_embeddings).astype('float32')
         dim = embeddings.shape[1]
         vs = faiss.IndexFlatL2(dim)
         vs.add(embeddings)
-        self.add_v_store(CD_CONTENT,vs,fileroots)    
+        self.add_v_store(CD_BOTH,vs,fileroots)
+        
+        embeddings_content = np.array(raw_embeddings_content).astype('float32')
+        dim = embeddings_content.shape[1]
+        vs = faiss.IndexFlatL2(dim)
+        vs.add(embeddings_content)
+        self.add_v_store(CD_CONTENT,vs,fileroots_content)    
+
+        embeddings_title = np.array(raw_embeddings_title).astype('float32')
+        dim = embeddings_title.shape[1]
+        vs = faiss.IndexFlatL2(dim)
+        vs.add(embeddings_title)
+        self.add_v_store(CD_TITLE,vs,fileroots_title)    
 
 
     def get_content(self):
@@ -102,6 +123,25 @@ class CreativeStore(RAGStore):
                 
             
         return content 
+
+
+    def get_document(self, doc_id):
+        doc = self.corpus.documents[doc_id]
+        document = dict()
+        document["segments"]=dict()
+        for segment_id in doc.segments:
+            document["segments"][segment_id] = doc.segments[segment_id].content
+        document["chunks"]=dict()
+        for chunk_id in doc.chunks:
+            document["chunks"][chunk_id] = dict()
+            document["chunks"][chunk_id]["partition_id"] = doc.chunks[chunk_id].partition_id
+            document["chunks"][chunk_id]["segment_ids"] = list(doc.chunks[chunk_id].segment_ids)
+            document["chunks"][chunk_id]["metadata"] = doc.chunks[chunk_id].metadata
+            document["chunks"][chunk_id]["i_content"] = doc.chunks[chunk_id].get_i_content()
+            document["chunks"][chunk_id]["v_content"] = doc.chunks[chunk_id].get_v_content()
+                
+            
+        return document 
 
     def find_word_in_content(self, keyword):
         query = QueryParser("content", self.i_indexes[KW_INDEX].schema).parse(keyword)
