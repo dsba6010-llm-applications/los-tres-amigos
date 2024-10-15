@@ -8,11 +8,6 @@ import json
 
 CONFIG = json.load(open("syllabi_config.json"))
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
 logger = logging.getLogger(__name__)
 
 SYLLABI_DOCS=CONFIG['DOCS_HOME']
