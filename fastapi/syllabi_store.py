@@ -20,7 +20,6 @@ from syllabi_corpus import SyllabiCorpus
 
 CONFIG = json.load(open("syllabi_config.json"))
 
-
 client = OpenAI(
     base_url=CONFIG["LLM_URL"],
 
@@ -37,4 +36,70 @@ class SyllabiStore(RAGStore):
 
     def __init__(self):
         super().__init__(corpus = SyllabiCorpus())
+        self.load_content()
+    
+    def load_content(self):
         self.index_content()
+        self.embed_content()
+
+    def index_content(self):
+        schema = Schema(
+            id=ID(stored=True, unique=True),
+            course_title=TEXT(stored=True),
+            content=TEXT(analyzer=StemmingAnalyzer()),
+            course_number=KEYWORD(stored=True, commas=False),
+            semester=TEXT(stored=True),
+            instructor=TEXT(stored=True)
+        )
+        storage = RamStorage()
+        index = storage.create_index(schema)
+        writer = index.writer()
+
+        # Iterate through the documents' chunks in the content partition
+        for filename in self.corpus.documents:
+            chunk_id = f"{filename}.full"
+            writer.add_document(
+                id=filename,
+                course_title=self.corpus.documents[filename].chunks[chunk_id].metadata['course_title'],
+                content=self.corpus.documents[filename].chunks[chunk_id].get_i_content(),
+                course_number=self.corpus.documents[filename].chunks[chunk_id].metadata['course_number'],
+                semester=self.corpus.documents[filename].chunks[chunk_id].metadata['semester'],
+                instructor=self.corpus.documents[filename].chunks[chunk_id].metadata['instructor']
+            )
+
+        writer.commit()
+        self.add_i_index(KW_INDEX, index.searcher(weighting=scoring.BM25F()))
+
+    
+    def embed_content(self):
+
+        # Embed Content
+        raw_embeddings=list()
+        filenames=list()
+        for filename in self.corpus.documents:
+            for chunk_id in self.corpus.documents[filename].chunks:
+                raw_embeddings.append(self.get_embedding(self.corpus.documents[filename].chunks[chunk_id].get_v_content()))
+                filenames.append(chunk_id)
+
+        embeddings = np.array(raw_embeddings).astype('float32')
+        dim = embeddings.shape[1]
+        vs = faiss.IndexFlatL2(dim)
+        vs.add(embeddings)
+        self.add_v_store(CD_CONTENT,vs,filenames)
+        
+
+    def find_word_in_content(self, keyword):
+        query = QueryParser("content", self.i_indexes[KW_INDEX].schema).parse(keyword)
+        results = self.keyword_search(KW_INDEX,query)
+        works=list()
+        for result in results:
+            works.append(result)
+        return works
+    
+    def get_embedding(self,content,query_convert=False):
+        embeddings = client.embeddings.create(
+            model=CONFIG["EMBEDDING_MODEL"],
+            input=content
+        )
+
+        return np.array(embeddings.data[0].embedding).astype('float32').reshape(1, -1) if query_convert else embeddings.data[0].embedding

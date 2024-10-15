@@ -1,7 +1,7 @@
 from fastapi import FastAPI
-from creative_store import CreativeStore, CD_CONTENT
+from syllabi_store import SyllabiStore, CD_CONTENT
 app = FastAPI()
-c_store = CreativeStore()
+s_store = SyllabiStore()
 
 
 @app.get("/")
@@ -14,16 +14,16 @@ async def add_item(addend1: int,addend2 :int):
 
 @app.get("/c_store")
 def get_content():
-    return c_store.get_content()
+    return s_store.get_content()
 
 @app.get("/doc/{doc_id}")
 async def get_content(doc_id: str):
-    return c_store.get_document(doc_id)
+    return s_store.get_document(doc_id)
 
 @app.get("/find/{word}")
 async def find_word(word: str):
-    return c_store.find_word_in_content(word)
+    return s_store.find_word_in_content(word)
 
 @app.get("/search/{phrase}/{k}")
 async def search_phrase(phrase: str,k: int):
-    return c_store.semantic_search(CD_CONTENT,c_store.get_embedding(phrase,query_convert=True),k)
+    return s_store.semantic_search(CD_CONTENT,s_store.get_embedding(phrase,query_convert=True),k)
