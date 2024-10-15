@@ -105,7 +105,7 @@ class SyllabiCorpus(Corpus):
             self.documents[filename].chunks[chunk_id].add_segment_id("content")      
 
             # Chunks for vector store
-            chunks = chunk_content(syllabus["content"], chunk_size=512, overlap=50)
+            chunks = chunk_content(syllabus["content"], chunk_size=2048, overlap=160)
             for idx, chunk in enumerate(chunks):
                 # Create chunk in partition
                 chunk_id = f"{filename}.C{(idx+1):04d}"
