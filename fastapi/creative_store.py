@@ -1,4 +1,4 @@
-from ragstore import RAGStore
+from rag_store import RAGStore
 import os
 import json
 
