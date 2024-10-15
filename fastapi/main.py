@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from syllabi_store import SyllabiStore, CD_CONTENT
+import logging
 app = FastAPI()
 s_store = SyllabiStore()
 

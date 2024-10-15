@@ -1,11 +1,19 @@
 import rag_corpus as rgc
 from rag_corpus import Corpus, Schema
 from transformers import GPT2Tokenizer
+import logging
 
 import os
 import json
 
 CONFIG = json.load(open("syllabi_config.json"))
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
 
 SYLLABI_DOCS=CONFIG['DOCS_HOME']
 KW_INDEX="kw"
@@ -21,7 +29,7 @@ TODO: Define a Chunker Base class
 
 """
 
-def chunk_content(content, chunk_size=512, overlap=50):
+def chunk_content(content, chunk_size=2048, overlap=160):
     """
     Splits text content into fixed-length chunks with overlap.
 

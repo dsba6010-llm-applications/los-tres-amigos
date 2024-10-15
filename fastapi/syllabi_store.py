@@ -1,6 +1,7 @@
 from rag_store import RAGStore
 import os
 import json
+import logging
 
 import faiss  # Or any other vector store you choose
 
@@ -32,6 +33,13 @@ SYLLABI_DOCS=CONFIG["DOCS_HOME"]
 KW_INDEX="keyword"
 CD_CONTENT="content"
 
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+logger = logging.getLogger(__name__)
+
 class SyllabiStore(RAGStore):
 
     def __init__(self):
@@ -39,8 +47,11 @@ class SyllabiStore(RAGStore):
         self.load_content()
     
     def load_content(self):
+        logger.info("Indexing Content")
         self.index_content()
+        logger.info("Embedding Content")
         self.embed_content()
+        logger.info("READY")
 
     def index_content(self):
         schema = Schema(
@@ -76,8 +87,14 @@ class SyllabiStore(RAGStore):
         # Embed Content
         raw_embeddings=list()
         filenames=list()
+        file_no=0
         for filename in self.corpus.documents:
+            file_no += 1
+            logger.info(f"FILE {file_no}: {filename}")
             for chunk_id in self.corpus.documents[filename].chunks:
+                if self.corpus.documents[filename].chunks[chunk_id].partition_id != "syllabi-chunked":
+                    continue
+                logger.info(f"  CHUNK: {chunk_id}")
                 raw_embeddings.append(self.get_embedding(self.corpus.documents[filename].chunks[chunk_id].get_v_content()))
                 filenames.append(chunk_id)
 
