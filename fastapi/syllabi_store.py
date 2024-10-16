@@ -1,4 +1,5 @@
 from rag_store import RAGStore
+import rag_store as rs
 import os
 import json
 import logging
@@ -32,6 +33,8 @@ client = OpenAI(
 SYLLABI_DOCS=CONFIG["DOCS_HOME"]
 KW_INDEX="keyword"
 CD_CONTENT="content"
+
+SYLLABI_EMBEDDING_CACHE = os.path.join(SYLLABI_DOCS, 'syllabi-embeddings.json')
 
 logger = logging.getLogger(__name__)
 
@@ -76,10 +79,24 @@ class SyllabiStore(RAGStore):
         writer.commit()
         self.add_i_index(KW_INDEX, index.searcher(weighting=scoring.BM25F()))
 
-    
+    def update_embeddings_cache(self,embeddings_map):
+        existing_map = self.load_embeddings_cache()
+        existing_map.update(embeddings_map)
+        self.store_embeddings_cache(existing_map)
+
+    def load_embeddings_cache(self):
+        try:
+            return json.load(open(SYLLABI_EMBEDDING_CACHE))
+        except Exception:
+            return dict()
+
+    def store_embeddings_cache(self,embeddings_map):
+        json.dump(embeddings_map,open(SYLLABI_EMBEDDING_CACHE,"w"))
+
     def embed_content(self):
 
         # Embed Content
+        existing_embeddings=self.load_embeddings_cache()
         raw_embeddings=list()
         filenames=list()
         file_no=0
@@ -90,9 +107,15 @@ class SyllabiStore(RAGStore):
                 if self.corpus.documents[filename].chunks[chunk_id].partition_id != "syllabi-chunked":
                     continue
                 logger.info(f"  CHUNK: {chunk_id}")
-                raw_embeddings.append(self.get_embedding(self.corpus.documents[filename].chunks[chunk_id].get_v_content()))
+                if chunk_id in existing_embeddings:
+                    raw_embeddings.append(existing_embeddings[chunk_id])
+                else:
+                    raw_embeddings.append(
+                        self.get_embedding(self.corpus.documents[filename].chunks[chunk_id].get_v_content())
+                    )
                 filenames.append(chunk_id)
 
+        self.store_embeddings_cache(rs.get_embeddings_map(raw_embeddings,filenames))
         embeddings = np.array(raw_embeddings).astype('float32')
         dim = embeddings.shape[1]
         vs = faiss.IndexFlatL2(dim)
@@ -115,3 +138,5 @@ class SyllabiStore(RAGStore):
         )
 
         return np.array(embeddings.data[0].embedding).astype('float32').reshape(1, -1) if query_convert else embeddings.data[0].embedding
+    
+ 

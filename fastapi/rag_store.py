@@ -15,6 +15,16 @@ N_ITEM="item"
 N_V_STORE="v_store"
 N_XREF="xref"
 
+# Utility Class to store raw embeddings
+def get_embeddings_map(raw_embeddings,chunk_ids):
+    if len(raw_embeddings) != len (chunk_ids):
+        raise Exception("Length of Embeddings and IDs do not match")
+    embeddings_map = dict()
+    for i in range(len(chunk_ids)):
+        embeddings_map[chunk_ids[i]] = raw_embeddings[i]
+
+    return embeddings_map
+
 class RAGStore():
     def __init__(self,corpus=None):
         self.v_stores=dict()
