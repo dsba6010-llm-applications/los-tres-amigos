@@ -18,13 +18,9 @@ logger.info("Store Loaded")
 async def root():
     return {"message": "Hello World"}
 
-@app.get("/add/{addend1}/{addend2}")
-async def add_item(addend1: int,addend2 :int):
-    return {"sum": addend1 + addend2}
-
 @app.get("/c_store")
 def get_content():
-    return s_store.corpus.get_content()
+    return s_store.corpus.get_documents()
 
 @app.get("/doc/{doc_id}")
 async def get_document(doc_id: str):
