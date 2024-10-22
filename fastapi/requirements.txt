@@ -1,7 +1,19 @@
 ordered-set
-faiss-cpu
 whoosh
 openai
 tokenizers
-fastapi[standard]
-transformers
+# fastapi[standard]
+fastapi          # Web framework for building APIs
+uvicorn          # ASGI server for running FastAPI applications
+langchain        # Framework for developing applications with LLMs
+langchain-community
+faiss-cpu        # Vector store for efficient similarity search
+sentence-transformers  # For creating embeddings
+pypdf            # For reading PDF files
+python-dotenv    # For loading environment variables
+huggingface_hub  # For accessing Hugging Face models and data
+transformers     # For using transformer models
+pydantic         # For data validation and settings management
+requests         # For making HTTP requests to the Modal API
+modal            # For interacting with Modal's cloud services
+

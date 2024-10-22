@@ -9,7 +9,19 @@ logging.basicConfig(
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI()
+from routes import router  # Assuming routes.py is in the same directory as main.py
+
+# Create a FastAPI application instance with a title
+app = FastAPI(title="UNC Charlotte Chatbot")
+
+# Include the router, which contains our API endpoints
+app.include_router(router)
+
+# This block allows us to run the app directly with uvicorn
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+
 logger.info("Loading Store")
 s_store = sc.SyllabiStore()
 logger.info("Store Loaded")
