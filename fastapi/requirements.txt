@@ -1,12 +1,20 @@
 ordered-set
+cargo
+maturin
 whoosh
 openai
+faiss-cpu
 tokenizers
-# fastapi[standard]
+fastapi[standard]
 fastapi          # Web framework for building APIs
 uvicorn          # ASGI server for running FastAPI applications
 langchain        # Framework for developing applications with LLMs
 langchain-community
+unstructured
+unstructured[pdf]
+pi-heif  # pip install git+https://github.com/carsales/pyheif.git on Mac M1
+pikepdf
+libmagic         # also install .so or .dll
 faiss-cpu        # Vector store for efficient similarity search
 sentence-transformers  # For creating embeddings
 pypdf            # For reading PDF files
