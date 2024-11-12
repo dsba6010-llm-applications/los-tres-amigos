@@ -10,3 +10,5 @@ transformers     # For using transformer models
 pydantic         # For data validation and settings management
 requests         # For making HTTP requests to the Modal API
 modal            # For interacting with Modal's cloud services
+langfuse	 # tracing
+python-dotenv
