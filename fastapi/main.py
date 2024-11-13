@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 import syllabi_store as sc
 import logging
+import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s -  %(module)s - %(levelname)s - %(message)s',

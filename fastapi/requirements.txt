@@ -5,3 +5,5 @@ openai
 tokenizers
 fastapi[standard]
 transformers
+tensorflow
+lightgbm
