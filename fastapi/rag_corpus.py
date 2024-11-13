@@ -184,3 +184,27 @@ class Corpus:
         partition = Partition(self,id)
         self.partitions[partition.id]=partition
         return partition.id
+
+    def get_document(self, doc_id):
+        doc = self.documents[doc_id]
+        document = dict()
+        document["segments"]=dict()
+        for segment_id in doc.segments:
+            document["segments"][segment_id] = doc.segments[segment_id].content
+        document["chunks"]=dict()
+        for chunk_id in doc.chunks:
+            document["chunks"][chunk_id] = dict()
+            document["chunks"][chunk_id]["partition_id"] = doc.chunks[chunk_id].partition_id
+            document["chunks"][chunk_id]["segment_ids"] = list(doc.chunks[chunk_id].segment_ids)
+            document["chunks"][chunk_id]["metadata"] = doc.chunks[chunk_id].metadata
+            document["chunks"][chunk_id]["i_content"] = doc.chunks[chunk_id].get_i_content()
+            document["chunks"][chunk_id]["v_content"] = doc.chunks[chunk_id].get_v_content()
+                           
+        return document
+
+    def get_documents(self):
+        documents=dict()
+        for doc_id in self.documents:
+            documents[doc_id] = self.get_document(doc_id)
+                         
+        return documents 
