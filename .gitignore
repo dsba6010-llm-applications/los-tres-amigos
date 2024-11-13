@@ -2,6 +2,10 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_Store
+syllabi-embeddings.json
+# Something in Rich's Environment
+update_notebook.sh
 
 # C extensions
 *.so
