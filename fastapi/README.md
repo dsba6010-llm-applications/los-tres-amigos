@@ -7,6 +7,7 @@ This is a work in progress that has a demo based upon an early implementation of
 We are working on providing a RAGStore and RAGCorpus set of base classes to support the createion of Application Specific RAG Stores and Corpora
 
 
+
 ##  RAG Store
 
 The RAG Store is a structure that contains a collection of inverted indexes and vector stores.  Support for multiple indexes and vector stores gives us the ability to fine tune RAG Store to support a myriad of use cases.

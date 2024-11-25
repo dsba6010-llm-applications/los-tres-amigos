@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 fastapi          # Web framework for building APIs
 uvicorn          # ASGI server for running FastAPI applications
 langchain        # Framework for developing applications with LLMs
@@ -12,3 +13,14 @@ requests         # For making HTTP requests to the Modal API
 modal            # For interacting with Modal's cloud services
 langfuse	 # tracing
 python-dotenv
+=======
+ordered-set
+faiss-cpu
+whoosh
+openai
+tokenizers
+fastapi[standard]
+transformers
+tensorflow
+lightgbm
+>>>>>>> e8481777142a38087a114d45c6bdcf03714f26d3
