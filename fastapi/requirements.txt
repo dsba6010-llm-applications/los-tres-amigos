@@ -10,3 +10,4 @@ lightgbm
 langchain
 langchain_core
 gunicorn
+google-generativeai

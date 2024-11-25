@@ -9,6 +9,12 @@ from pydantic import BaseModel
 from typing import List
 from langchain.chains import RetrievalQA
 from langchain.llms import OpenAI
+from langchain.llms.base import LLM
+from typing import Optional, List
+from langchain.llms import Ollama
+
+import json
+
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 logging.basicConfig(
@@ -27,28 +33,6 @@ logger.info("Store Loaded")
 
 from langchain.llms.base import LLM
 from typing import Optional
-
-API_KEY="ollama"
-MODEL_NAME="mistral"
-BASE_URL="http://localhost:11434"
-class OllamaLLM(LLM):
-
-    @property
-    def _llm_type(self) -> str:
-        return "ollama"
-
-    def _call(self, prompt: str, stop: Optional[list] = None) -> str:
-
-        headers = {}
-        if API_KEY:
-            headers["Authorization"] = f"Bearer {API_KEY}"
-        response = requests.post(
-            f"{BASE_URL}/api/v1/generate",
-            json={"model": MODEL_NAME, "prompt": prompt},
-            headers=headers
-        )
-        response.raise_for_status()
-        return response.json().get("response", "")
 
 
 class SyllabusSearchRetriever(BaseRetriever):
@@ -106,10 +90,16 @@ class SyllabusSearchRetriever(BaseRetriever):
         raise NotImplementedError("Async retrieval is not supported for this retriever.")
     
 ssr = SyllabusSearchRetriever()
-ollama_llm = OllamaLLM(model_name="llama-2", base_url="http://localhost:11434")
+
+CONFIG = json.load(open("syllabi_config.json"))
+
+sc_llm = Ollama(
+    base_url="http://localhost:11434",
+    model="llama3"
+)
 
 qa_chain = RetrievalQA.from_chain_type(
-    llm=ollama_llm, retriever=ssr,chain_type="stuff"
+    llm=sc_llm, retriever=ssr, chain_type="stuff"
 )
 
 @app.get("/")
