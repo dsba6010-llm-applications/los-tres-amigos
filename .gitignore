@@ -6,6 +6,7 @@ __pycache__/
 syllabi-embeddings.json
 # Something in Rich's Environment
 update_notebook.sh
+syllabi_concierge
 
 # C extensions
 *.so

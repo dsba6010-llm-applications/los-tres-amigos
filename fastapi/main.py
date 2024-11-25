@@ -12,10 +12,18 @@ from langchain.llms import OpenAI
 from langchain.llms.base import LLM
 from typing import Optional, List
 from langchain.llms import Ollama
+from langchain.prompts import PromptTemplate
+from transformers import pipeline
+import torch
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from langchain.chains import RetrievalQA
+from langchain_huggingface import HuggingFacePipeline
+#from huggingface_hub import login
 
 import json
 
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -92,14 +100,23 @@ class SyllabusSearchRetriever(BaseRetriever):
 ssr = SyllabusSearchRetriever()
 
 CONFIG = json.load(open("syllabi_config.json"))
+API_KEY: str = open("syllabi_concierge").read().strip()
+MODEL_NAME: str = "llama3"
+API_URL = f"https://api-inference.huggingface.co/models/{MODEL_NAME}"
+LLAMA3="meta-llama/Llama-3.2-1B"
+MISTRAL="mistralai/Mistral-7B-v0.1"
 
-sc_llm = Ollama(
-    base_url="http://localhost:11434",
-    model="llama3"
-)
+#login(token=API_KEY)
 
-qa_chain = RetrievalQA.from_chain_type(
-    llm=sc_llm, retriever=ssr, chain_type="stuff"
+hf_pipeline = HuggingFacePipeline.from_model_id("llama3", task="text-generation",
+
+                                                model_kwargs={"device": 0}, token=API_KEY,
+
+                                                config={"api_token": API_KEY})
+
+
+qa_chain = RetrievalQA.from_llm(
+    hf_pipeline, retriever=ssr
 )
 
 @app.get("/")
