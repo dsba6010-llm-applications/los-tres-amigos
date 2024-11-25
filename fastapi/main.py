@@ -105,18 +105,15 @@ MODEL_NAME: str = "llama3"
 API_URL = f"https://api-inference.huggingface.co/models/{MODEL_NAME}"
 LLAMA3="meta-llama/Llama-3.2-1B"
 MISTRAL="mistralai/Mistral-7B-v0.1"
-
+from langchain.llms import HuggingFaceEndpoint
+os.environ["HUGGINGFACEHUB_API_TOKEN"] = API_KEY
 #login(token=API_KEY)
 
-hf_pipeline = HuggingFacePipeline.from_model_id("llama3", task="text-generation",
-
-                                                model_kwargs={"device": 0}, token=API_KEY,
-
-                                                config={"api_token": API_KEY})
+llm=HuggingFaceEndpoint(repo_id=LLAMA3)
 
 
 qa_chain = RetrievalQA.from_llm(
-    hf_pipeline, retriever=ssr
+    llm, retriever=ssr
 )
 
 @app.get("/")
