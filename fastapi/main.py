@@ -18,7 +18,8 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 from langchain.chains import RetrievalQA
 from langchain_huggingface import HuggingFacePipeline
-#from huggingface_hub import login
+from huggingface_hub import InferenceClient
+from langchain.llms import HuggingFaceHub
 
 import json
 
@@ -36,7 +37,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 logger.info("Loading Store")
 s_store = sc.SyllabiStore()
-MAX_DOCS=5
+MAX_DOCS=2
 logger.info("Store Loaded")
 
 from langchain.llms.base import LLM
@@ -109,7 +110,13 @@ from langchain.llms import HuggingFaceEndpoint
 os.environ["HUGGINGFACEHUB_API_TOKEN"] = API_KEY
 #login(token=API_KEY)
 
-llm=HuggingFaceEndpoint(repo_id=LLAMA3)
+# Initialize Hugging Face InferenceClient
+client = InferenceClient()
+llm = HuggingFaceHub(
+    repo_id=LLAMA3, 
+    model_kwargs={"temperature": 0.1, "max_new_tokens": 256},
+    huggingfacehub_api_token=API_KEY  # Replace with your actual token
+)
 
 
 qa_chain = RetrievalQA.from_llm(
