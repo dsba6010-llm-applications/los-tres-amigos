@@ -30,9 +30,10 @@ app = FastAPI()
 logger.info("Loading Store")
 CONFIG = json.load(open("llm_config.json"))
 
-sc_llm = rllm.get_llm["local"]
-sc_cache = rllm.get_cache["local"]
-s_store = sc.SyllabiStore(client=sc_llm,cache_path=sc_cache)
+sc_llm = rllm.get_llm("local")
+sc_cache = rllm.get_cache("local")
+model_id = rllm.get_model_id("local")
+s_store = sc.SyllabiStore(client=sc_llm,cache_path=sc_cache,model_id=model_id)
 MAX_DOCS=5
 logger.info("Store Loaded")
 
