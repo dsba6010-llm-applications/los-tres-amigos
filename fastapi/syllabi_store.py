@@ -20,8 +20,6 @@ import numpy as np
 import syllabi_corpus as sc
 from syllabi_corpus import SyllabiCorpus
 
-CONFIG = json.load(open("syllabi_config.json"))
-
 
 KW_INDEX="keyword"
 CD_CONTENT="content"
@@ -31,10 +29,11 @@ logger = logging.getLogger(__name__)
 
 class SyllabiStore(RAGStore):
 
-    def __init__(self,client=None,cache_path=None):
+    def __init__(self,client=None,cache_path=None, model_id=None):
         super().__init__(corpus = SyllabiCorpus())
         self.cient=client
         self.cache_path=cache_path
+        self.model_id= model_id
         self.load_content()
     
     def load_content(self):
@@ -126,7 +125,7 @@ class SyllabiStore(RAGStore):
     
     def get_embedding(self,content,query_convert=False):
         embeddings = self.client.embeddings.create(
-            model=CONFIG["EMBEDDING_MODEL"],
+            model=self.model_id,
             input=content
         )
 

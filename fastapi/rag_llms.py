@@ -33,11 +33,13 @@ def get_hf_llm():
 LLM_MAPPING = {
     "local": { 
         "llm": get_local_llm,
-        "cache": os.path.join(CONFIG["DOCS_HOME"], CONFIG["LOCAL_DOCS_CACHE"])
+        "cache": os.path.join(CONFIG["DOCS_HOME"], CONFIG["LOCAL_DOCS_CACHE"]),
+        "model_id": CONFIG["EMBEDDING_MODEL"]
     },
     "hf": {
         "llm": get_hf_llm,
-        "cache": os.path.join(CONFIG["DOCS_HOME"], CONFIG["HF_DOCS_CACHE"])
+        "cache": os.path.join(CONFIG["DOCS_HOME"], CONFIG["HF_DOCS_CACHE"]),
+        "model_id": CONFIG["HF_MODEL_ID"]
     }
 
     # Add more LLM mappings here as needed
@@ -58,5 +60,14 @@ def get_cache(name="local"):
     # Return the appropriate LLM function result, or raise an error if not found
     if name in LLM_MAPPING:
         return LLM_MAPPING[name]["cache"]
+    else:
+        raise ValueError(f"Unknown LLM name: {name}")
+    
+def get_model_id(name="local"):
+    global LLM_MAPPING
+    
+    # Return the appropriate LLM function result, or raise an error if not found
+    if name in LLM_MAPPING:
+        return LLM_MAPPING[name]["model_id"]
     else:
         raise ValueError(f"Unknown LLM name: {name}")
