@@ -12,6 +12,7 @@ from langchain.llms import OpenAI
 from langchain.llms.base import LLM
 from typing import Optional, List
 from langchain.llms import Ollama
+import rag_llms as rllm
 
 import json
 
@@ -27,11 +28,14 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 logger.info("Loading Store")
-s_store = sc.SyllabiStore()
+CONFIG = json.load(open("llm_config.json"))
+
+sc_llm = rllm.get_llm["local"]
+sc_cache = rllm.get_cache["local"]
+s_store = sc.SyllabiStore(client=sc_llm,cache_path=sc_cache)
 MAX_DOCS=5
 logger.info("Store Loaded")
 
-from langchain.llms.base import LLM
 from typing import Optional
 
 
@@ -91,14 +95,7 @@ class SyllabusSearchRetriever(BaseRetriever):
     
 ssr = SyllabusSearchRetriever()
 
-CONFIG = json.load(open("syllabi_config.json"))
 
-sc_llm = OpenAI(
-    base_url=CONFIG["LLM_URL"],
-
-    # required but ignored
-    api_key='ollama',
-)
 
 qa_chain = RetrievalQA.from_chain_type(
     llm=sc_llm, retriever=ssr

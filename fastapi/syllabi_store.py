@@ -22,26 +22,19 @@ from syllabi_corpus import SyllabiCorpus
 
 CONFIG = json.load(open("syllabi_config.json"))
 
-client = OpenAI(
-    base_url=CONFIG["LLM_URL"],
 
-    # required but ignored
-    api_key='ollama',
-)
-
-
-SYLLABI_DOCS=CONFIG["DOCS_HOME"]
 KW_INDEX="keyword"
 CD_CONTENT="content"
 
-SYLLABI_EMBEDDING_CACHE = os.path.join(SYLLABI_DOCS, 'syllabi-embeddings.json')
 
 logger = logging.getLogger(__name__)
 
 class SyllabiStore(RAGStore):
 
-    def __init__(self):
+    def __init__(self,client=None,cache_path=None):
         super().__init__(corpus = SyllabiCorpus())
+        self.cient=client
+        self.cache_path=cache_path
         self.load_content()
     
     def load_content(self):
@@ -86,12 +79,12 @@ class SyllabiStore(RAGStore):
 
     def load_embeddings_cache(self):
         try:
-            return json.load(open(SYLLABI_EMBEDDING_CACHE))
+            return json.load(open(self.cache_path)) # TODO:handle nocache
         except Exception:
             return dict()
 
     def store_embeddings_cache(self,embeddings_map):
-        json.dump(embeddings_map,open(SYLLABI_EMBEDDING_CACHE,"w"))
+        json.dump(embeddings_map,open(self.cache_path,"w"))
 
     def embed_content(self):
 
@@ -132,7 +125,7 @@ class SyllabiStore(RAGStore):
         return works
     
     def get_embedding(self,content,query_convert=False):
-        embeddings = client.embeddings.create(
+        embeddings = self.client.embeddings.create(
             model=CONFIG["EMBEDDING_MODEL"],
             input=content
         )

@@ -1,5 +1,0 @@
-{
-    "LLM_URL": "http://localhost:11434/v1/",
-    "DOCS_HOME": "/Users/rich/UNCC-DataScience/DSBA-6010/los-tres-amigos/fastapi",
-    "EMBEDDING_MODEL": "llama3"
-}
