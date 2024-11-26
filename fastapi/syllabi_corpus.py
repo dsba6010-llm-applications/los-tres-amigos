@@ -6,7 +6,7 @@ import logging
 import os
 import json
 
-CONFIG = json.load(open("syllabi_config.json"))
+CONFIG = json.load(open("llm_config.json"))
 
 logger = logging.getLogger(__name__)
 
