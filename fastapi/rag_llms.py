@@ -14,6 +14,7 @@ def get_hf_llm():
     hf_api_key = open(f'{CONFIG["KEY_FOLDER"]}/{CONFIG["HF_API_KEY_FILE"]}').read().strip()
     openai_api_key = open(f'{CONFIG["KEY_FOLDER"]}/{CONFIG["OPENAI_API_KEY_FILE"]}').read().strip()
     hf_api_url =  f'https://api-inference.huggingface.co/models/{CONFIG["HF_MODEL_ID"]}'
+    os.environ["OPENAI_API_KEY"] = openai_api_key
     class HuggingFaceWrapper(OpenAI):
 
         def _call(self, prompt):

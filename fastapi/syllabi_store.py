@@ -31,7 +31,7 @@ class SyllabiStore(RAGStore):
 
     def __init__(self,client=None,cache_path=None, model_id=None):
         super().__init__(corpus = SyllabiCorpus())
-        self.cient=client
+        self.client=client
         self.cache_path=cache_path
         self.model_id= model_id
         self.load_content()

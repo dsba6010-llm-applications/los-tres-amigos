@@ -29,10 +29,13 @@ logger = logging.getLogger(__name__)
 app = FastAPI()
 logger.info("Loading Store")
 CONFIG = json.load(open("llm_config.json"))
-
-sc_llm = rllm.get_llm("local")
-sc_cache = rllm.get_cache("local")
-model_id = rllm.get_model_id("local")
+LLMENV="hf"
+openai_api_key = open(f'{CONFIG["KEY_FOLDER"]}/{CONFIG["OPENAI_API_KEY_FILE"]}').read().strip()
+os.environ["OPENAI_API_KEY"] = openai_api_key
+print(openai_api_key)
+sc_llm = rllm.get_llm(LLMENV)
+sc_cache = rllm.get_cache(LLMENV)
+model_id = rllm.get_model_id(LLMENV)
 s_store = sc.SyllabiStore(client=sc_llm,cache_path=sc_cache,model_id=model_id)
 MAX_DOCS=5
 logger.info("Store Loaded")
