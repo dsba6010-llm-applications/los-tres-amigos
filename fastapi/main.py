@@ -93,13 +93,15 @@ ssr = SyllabusSearchRetriever()
 
 CONFIG = json.load(open("syllabi_config.json"))
 
-sc_llm = Ollama(
-    base_url="http://localhost:11434",
-    model="llama3"
+sc_llm = OpenAI(
+    base_url=CONFIG["LLM_URL"],
+
+    # required but ignored
+    api_key='ollama',
 )
 
 qa_chain = RetrievalQA.from_chain_type(
-    llm=sc_llm, retriever=ssr, chain_type="stuff"
+    llm=sc_llm, retriever=ssr
 )
 
 @app.get("/")
