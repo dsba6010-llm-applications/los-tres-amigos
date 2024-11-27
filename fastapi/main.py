@@ -132,5 +132,13 @@ async def ragify(query: str):
 
 @app.get("/infer/{prompt}")
 async def infer(prompt: str):
+    # Retrieve documents from the retriever
+    retrieved_docs = ssr.get_relevant_documents(prompt)
+    
+    # Extract document IDs from metadata
+    doc_ids = [doc.metadata.get("id", "unknown") for doc in retrieved_docs]
+    
+    # Run the QA chain
     result = qa_chain.run(prompt)
-    return {"answer": result}
+    
+    return {"answer": result, "doc_ids": doc_ids}
