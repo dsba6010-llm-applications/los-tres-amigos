@@ -134,10 +134,10 @@ async def ragify(query: str):
 async def infer(prompt: str):
     # Retrieve documents from the retriever
     retrieved_docs = ssr.get_relevant_documents(prompt)
-    doc_ids = [doc.get("id", "unknown") for doc in retrieved_docs]
+    doc_ids = [dict(doc).get("id", "unknown") for doc in retrieved_docs]
 
     
     # Run the QA chain
     result = qa_chain.run(prompt)
     
-    return {"answer": result, "docs": retrieved_docs}
+    return {"answer": result, "references": doc_ids}
