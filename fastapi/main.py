@@ -134,6 +134,7 @@ async def ragify(query: str):
 async def infer(prompt: str):
     # Retrieve documents from the retriever
     retrieved_docs = ssr.get_relevant_documents(prompt)
+    doc_ids = [doc.get("id", "unknown") for doc in retrieved_docs]
 
     
     # Run the QA chain
