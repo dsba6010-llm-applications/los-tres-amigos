@@ -8,6 +8,7 @@ transformers
 lightgbm
 langchain
 langchain_core
+langchain_community
 gunicorn
 google-generativeai
 langchain_openai
