@@ -5,7 +5,6 @@ openai
 tokenizers
 fastapi[standard]
 transformers
-tensorflow
 lightgbm
 langchain
 langchain_core
