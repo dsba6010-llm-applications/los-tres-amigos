@@ -29,9 +29,10 @@ logger = logging.getLogger(__name__)
 
 class SyllabiStore(RAGStore):
 
-    def __init__(self,client=None,cache_path=None, model_id=None):
+    def __init__(self,client=None,cache_path=None, model_id=None, embeddings=None):
         super().__init__(corpus = SyllabiCorpus())
         self.client=client
+        self.embeddings = embeddings
         self.cache_path=cache_path
         self.model_id= model_id
         self.load_content()
@@ -124,11 +125,8 @@ class SyllabiStore(RAGStore):
         return works
     
     def get_embedding(self,content,query_convert=False):
-        embeddings = self.client.embeddings.create(
-            model=self.model_id,
-            input=content
-        )
+        embeddings = self.embeddings.embed_query(content)
 
-        return np.array(embeddings.data[0].embedding).astype('float32').reshape(1, -1) if query_convert else embeddings.data[0].embedding
+        return np.array(embeddings).astype('float32').reshape(1, -1) if query_convert else embeddings
     
  

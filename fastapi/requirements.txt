@@ -11,3 +11,4 @@ langchain
 langchain_core
 gunicorn
 google-generativeai
+langchain_openai
