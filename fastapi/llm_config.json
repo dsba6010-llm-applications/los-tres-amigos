@@ -1,12 +1,12 @@
 {
     "LLM_URL": "http://localhost:11434/v1/",
-    "DOCS_HOME": "/Users/rich/UNCC-DataScience/DSBA-6010/los-tres-amigos/fastapi",
+    "DOCS_HOME": "/home/ec2-user/los-tres-amigos/fastapi",
     "LOCAL_DOCS_CACHE": "syllabi-embeddings.json",
     "HF_DOCS_CACHE": "hf-syllabi-embeddings.json",
     "OPENAI_DOCS_CACHE": "openai-syllabi-embeddings.json",
     "EMBEDDING_MODEL": "llama3",
     "HF_MODEL_ID": "meta-llama/Llama-3.2-1B",
-    "KEY_FOLDER": "/Users/rich/UNCC-DataScience/DSBA-6010/los-tres-amigos/fastapi",
+    "KEY_FOLDER": "/home/ec2-user/los-tres-amigos/fastapi",
     "OPENAI_API_KEY_FILE": "syllabi_openai",
     "HF_API_KEY_FILE": "syllabi_concierge",
     "OPEN_AI_MODEL_ID": "davinci-002"
