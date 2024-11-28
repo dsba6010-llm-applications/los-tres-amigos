@@ -2,16 +2,6 @@ from fastapi import FastAPI
 import syllabi_store as sc
 import logging
 import os
-import requests
-from langchain.schema import Document
-from langchain_core.retrievers import BaseRetriever
-from pydantic import BaseModel
-from typing import List
-from langchain.chains import RetrievalQA
-from langchain.llms import OpenAI
-from langchain.llms.base import LLM
-from typing import Optional, List
-from langchain.llms import Ollama
 import rag_llms as rllm
 from openai_embedder import OpenAIEmbedder
 from openai_ragifier import SimpleOpenAIRAGifier
