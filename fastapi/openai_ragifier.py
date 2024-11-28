@@ -6,13 +6,15 @@ import rag_corpus as rgc
 from rag_corpus import Corpus, Schema
 from rag_store import RAGStore
 import syllabi_store as sylstr
-import openai
+from openai import OpenAI
+import rag_llms as rllm
 MAX_DOCS=5
 MODEL_ID='gpt-4o-mini'
 # Code Advice from https://chatgpt.com/share/6748b4cb-5994-8007-8390-eeaca6cbbeb9
 class SimpleOpenAIRAGifier(RAGIfier):
     def __init__(self,store: RAGStore,corpus: Corpus,rag_embedder: RAGCachedEmbedder):
         super().__init__(store,corpus,rag_embedder)
+        self.client=OpenAI()
 
     def ragify_prompt(self,prompt):
         results = self.store.semantic_search(sylstr.CD_CONTENT,self.store.cached_embedder.get_embedding(prompt,query_convert=True),MAX_DOCS)
@@ -42,7 +44,7 @@ class SimpleOpenAIRAGifier(RAGIfier):
 
     def process_prompt(self,prompt):
         ragified_prompt=self.ragify_prompt(prompt)
-        response = openai.ChatCompletion.create(
+        response = self.client.chat.completions.create(
             model="gpt-4o-mini",  # Or the model of your choice
             messages=[
                 {"role": "system", "content": ragified_prompt["system_prompt"]},
@@ -54,4 +56,9 @@ class SimpleOpenAIRAGifier(RAGIfier):
                 )}
             ]
         )
-        return(response)
+
+        return({
+            "answer": response.choices[0].message.content,
+            "ragified_prompt": ragified_prompt,
+            "full_response": response
+        })

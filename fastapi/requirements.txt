@@ -1,7 +1,7 @@
 ordered-set
 faiss-cpu
 whoosh
-openai==0.28
+openai
 tokenizers
 fastapi[standard]
 transformers
@@ -12,3 +12,4 @@ langchain_community
 gunicorn
 google-generativeai
 langchain_openai
+pydantic
