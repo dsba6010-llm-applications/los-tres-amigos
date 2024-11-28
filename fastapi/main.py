@@ -13,6 +13,7 @@ from langchain.llms.base import LLM
 from typing import Optional, List
 from langchain.llms import Ollama
 import rag_llms as rllm
+from openai_embedder import OpenAIEmbedder
 
 import json
 
@@ -37,7 +38,8 @@ sc_llm = rllm.get_llm(LLMENV)
 sc_cache = rllm.get_cache(LLMENV)
 model_id = rllm.get_model_id(LLMENV)
 embeddings=rllm.get_embeddings(LLMENV)
-s_store = sc.SyllabiStore(client=sc_llm,cache_path=sc_cache,model_id=model_id,embeddings=embeddings)
+
+s_store = sc.SyllabiStore(cached_embedder=OpenAIEmbedder("text-embedding-3-large"))
 MAX_DOCS=5
 logger.info("Store Loaded")
 
@@ -58,7 +60,7 @@ class SyllabusSearchRetriever(BaseRetriever):
             list[Document]: A list of LangChain Document objects.
         """
         # Perform the search using the semantic search engine
-        results = s_store.semantic_search(sc.CD_CONTENT,s_store.get_embedding(query,query_convert=True),MAX_DOCS)
+        results = s_store.semantic_search(sc.CD_CONTENT,s_store.cached_embedder.get_embedding(query,query_convert=True),MAX_DOCS)
         
         raw_docs = list()
         for item in results:
