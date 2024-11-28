@@ -14,6 +14,7 @@ from typing import Optional, List
 from langchain.llms import Ollama
 import rag_llms as rllm
 from openai_embedder import OpenAIEmbedder
+from openai_ragifier import SimpleOpenAIRAGifier
 
 import json
 
@@ -42,71 +43,7 @@ embeddings=rllm.get_embeddings(LLMENV)
 s_store = sc.SyllabiStore(cached_embedder=OpenAIEmbedder("text-embedding-3-large"))
 MAX_DOCS=5
 logger.info("Store Loaded")
-
-from typing import Optional
-
-
-class SyllabusSearchRetriever(BaseRetriever):
-    global s_store
-
-    def _get_relevant_documents(self, query: str) -> list[Document]:
-        """
-        Retrieve the top `k` relevant documents for a given query.
-
-        Args:
-            query (str): The query string.
-
-        Returns:
-            list[Document]: A list of LangChain Document objects.
-        """
-        # Perform the search using the semantic search engine
-        results = s_store.semantic_search(sc.CD_CONTENT,s_store.cached_embedder.get_embedding(query,query_convert=True),MAX_DOCS)
-        
-        raw_docs = list()
-        for item in results:
-            obj=dict()
-            obj["id"] = item["item"]
-
-            chunk = s_store.corpus.partitions['syllabi-chunked'].chunks[item["item"]]
-            obj['title']=chunk.metadata["course_title"]
-            obj['number']=chunk.metadata["course_number"]
-            obj['instructor']=chunk.metadata["instructor"]
-            obj['content']=chunk.get_v_content()
-            obj["distance"]=item["distance"]
-            raw_docs.append(obj)
-
-
-        # Convert the search results into LangChain Document objects
-        documents = [
-            Document(page_content=chunk["content"], id=chunk["id"], metadata={
-                "CourseTitle": chunk['title'],
-                "CourseNumber": chunk['number'],
-                "Instructor": chunk['instructor']
-            })
-            for chunk in raw_docs
-        ]
-        # print(f"docs: {documents}")
-        return documents
-
-    async def _aget_relevant_documents(self, query: str) -> list[Document]:
-        """
-        Asynchronous version of get_relevant_documents.
-
-        Args:
-            query (str): The query string.
-
-        Returns:
-            list[Document]: A list of LangChain Document objects.
-        """
-        raise NotImplementedError("Async retrieval is not supported for this retriever.")
-    
-ssr = SyllabusSearchRetriever()
-
-
-
-qa_chain = RetrievalQA.from_chain_type(
-    llm=sc_llm, retriever=ssr
-)
+ragifier=SimpleOpenAIRAGifier(s_store,s_store.corpus,s_store.cached_embedder)
 
 @app.get("/")
 async def root():
@@ -134,12 +71,4 @@ async def ragify(query: str):
 
 @app.get("/infer/{prompt}")
 async def infer(prompt: str):
-    # Retrieve documents from the retriever
-    retrieved_docs = ssr.get_relevant_documents(prompt)
-    doc_ids = [dict(doc).get("id", "unknown") for doc in retrieved_docs]
-
-    
-    # Run the QA chain
-    result = qa_chain.run(prompt)
-    
-    return {"answer": result, "references": doc_ids}
+    return ragifier.process_prompt(prompt)
