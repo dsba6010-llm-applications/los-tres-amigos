@@ -1,7 +1,7 @@
 ordered-set
 faiss-cpu
 whoosh
-openai
+openai==0.28
 tokenizers
 fastapi[standard]
 transformers

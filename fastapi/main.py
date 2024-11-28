@@ -44,6 +44,7 @@ s_store = sc.SyllabiStore(cached_embedder=OpenAIEmbedder("text-embedding-3-large
 MAX_DOCS=5
 logger.info("Store Loaded")
 ragifier=SimpleOpenAIRAGifier(s_store,s_store.corpus,s_store.cached_embedder)
+## TODO: move to the latest version of OpenAI which uses Pydantic
 
 @app.get("/")
 async def root():

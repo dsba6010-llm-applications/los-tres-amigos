@@ -13,7 +13,6 @@ MODEL_ID='gpt-4o-mini'
 class SimpleOpenAIRAGifier(RAGIfier):
     def __init__(self,store: RAGStore,corpus: Corpus,rag_embedder: RAGCachedEmbedder):
         super().__init__(store,corpus,rag_embedder)
-        self.llm=llm
 
     def ragify_prompt(self,prompt):
         results = self.store.semantic_search(sylstr.CD_CONTENT,self.store.cached_embedder.get_embedding(prompt,query_convert=True),MAX_DOCS)
@@ -44,7 +43,7 @@ class SimpleOpenAIRAGifier(RAGIfier):
     def process_prompt(self,prompt):
         ragified_prompt=self.ragify_prompt(prompt)
         response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
+            model="gpt-4o-mini",  # Or the model of your choice
             messages=[
                 {"role": "system", "content": ragified_prompt["system_prompt"]},
                 {"role": "user", "content": ragified_prompt["prompt"]},
