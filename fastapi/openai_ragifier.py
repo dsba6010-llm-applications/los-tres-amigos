@@ -7,7 +7,6 @@ from rag_corpus import Corpus, Schema
 from rag_store import RAGStore
 import syllabi_store as sylstr
 from openai import OpenAI
-import rag_llms as rllm
 MAX_DOCS=5
 MODEL_ID='gpt-4o-mini'
 # Code Advice from https://chatgpt.com/share/6748b4cb-5994-8007-8390-eeaca6cbbeb9
