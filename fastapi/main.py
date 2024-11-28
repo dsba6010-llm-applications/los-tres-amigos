@@ -2,12 +2,9 @@ from fastapi import FastAPI
 import syllabi_store as sc
 import logging
 import os
-import rag_llms as rllm
 from openai_embedder import OpenAIEmbedder
 from openai_ragifier import SimpleOpenAIRAGifier
-
 import json
-
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 logging.basicConfig(
@@ -15,26 +12,22 @@ logging.basicConfig(
     format='%(asctime)s -  %(module)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
 logger.info("Loading Store")
+
+# Load Global Config
 CONFIG = json.load(open("llm_config.json"))
-LLMENV="openai"
 openai_api_key = open(f'{CONFIG["KEY_FOLDER"]}/{CONFIG["OPENAI_API_KEY_FILE"]}').read().strip()
 os.environ["OPENAI_API_KEY"] = openai_api_key
-print(openai_api_key)
-sc_llm = rllm.get_llm(LLMENV)
-sc_cache = rllm.get_cache(LLMENV)
-model_id = rllm.get_model_id(LLMENV)
-embeddings=rllm.get_embeddings(LLMENV)
 
+## Load Syllabus Store
 s_store = sc.SyllabiStore(cached_embedder=OpenAIEmbedder("text-embedding-3-large"))
-MAX_DOCS=5
 logger.info("Store Loaded")
+
+## Set Up Ragifier
 ragifier=SimpleOpenAIRAGifier(s_store,s_store.corpus,s_store.cached_embedder)
-## TODO: move to the latest version of OpenAI which uses Pydantic
 
 @app.get("/")
 async def root():
@@ -58,7 +51,7 @@ async def search_phrase(phrase: str,k: int):
 
 @app.get("/ragify/{query}")
 async def ragify(query: str):
-    return ssr._get_relevant_documents(query)
+    return ragifier.ragify_prompt(query)
 
 @app.get("/infer/{prompt}")
 async def infer(prompt: str):
