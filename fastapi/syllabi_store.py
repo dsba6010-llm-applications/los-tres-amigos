@@ -29,12 +29,9 @@ logger = logging.getLogger(__name__)
 
 class SyllabiStore(RAGStore):
 
-    def __init__(self,client=None,cache_path=None, model_id=None, embeddings=None):
+    def __init__(self,cached_embedder):
         super().__init__(corpus = SyllabiCorpus())
-        self.client=client
-        self.embeddings = embeddings
-        self.cache_path=cache_path
-        self.model_id= model_id
+        self.cached_embedder = cached_embedder
         self.load_content()
     
     def load_content(self):
@@ -72,24 +69,11 @@ class SyllabiStore(RAGStore):
         writer.commit()
         self.add_i_index(KW_INDEX, index.searcher(weighting=scoring.BM25F()))
 
-    def update_embeddings_cache(self,embeddings_map):
-        existing_map = self.load_embeddings_cache()
-        existing_map.update(embeddings_map)
-        self.store_embeddings_cache(existing_map)
-
-    def load_embeddings_cache(self):
-        try:
-            return json.load(open(self.cache_path)) # TODO:handle nocache
-        except Exception:
-            return dict()
-
-    def store_embeddings_cache(self,embeddings_map):
-        json.dump(embeddings_map,open(self.cache_path,"w"))
 
     def embed_content(self):
 
         # Embed Content
-        existing_embeddings=self.load_embeddings_cache()
+        existing_embeddings=self.cached_embedder.load_embeddings_cache()
         raw_embeddings=list()
         filenames=list()
         file_no=0
@@ -104,11 +88,11 @@ class SyllabiStore(RAGStore):
                     raw_embeddings.append(existing_embeddings[chunk_id])
                 else:
                     raw_embeddings.append(
-                        self.get_embedding(self.corpus.documents[filename].chunks[chunk_id].get_v_content())
+                        self.cached_embedder.get_embedding(self.corpus.documents[filename].chunks[chunk_id].get_v_content())
                     )
                 filenames.append(chunk_id)
 
-        self.store_embeddings_cache(rs.get_embeddings_map(raw_embeddings,filenames))
+        self.cached_embedder.store_embeddings_cache(rs.get_embeddings_map(raw_embeddings,filenames))
         embeddings = np.array(raw_embeddings).astype('float32')
         dim = embeddings.shape[1]
         vs = faiss.IndexFlatL2(dim)
@@ -124,9 +108,3 @@ class SyllabiStore(RAGStore):
             works.append(result)
         return works
     
-    def get_embedding(self,content,query_convert=False):
-        embeddings = self.embeddings.embed_query(content)
-
-        return np.array(embeddings).astype('float32').reshape(1, -1) if query_convert else embeddings
-    
- 
