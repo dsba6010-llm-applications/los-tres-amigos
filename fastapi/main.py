@@ -3,7 +3,7 @@ import syllabi_store as sc
 import logging
 import os
 from openai_embedder import OpenAIEmbedder
-from openai_ragifier import SimpleOpenAIRAGifier
+from openai_ragifier import OpenAIRAGifier
 import json
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
@@ -27,7 +27,7 @@ s_store = sc.SyllabiStore(cached_embedder=OpenAIEmbedder("text-embedding-3-large
 logger.info("Store Loaded")
 
 ## Set Up Ragifier
-ragifier=SimpleOpenAIRAGifier(s_store,s_store.corpus,s_store.cached_embedder)
+ragifier=OpenAIRAGifier(s_store,s_store.corpus,s_store.cached_embedder)
 
 @app.get("/")
 async def root():
@@ -52,6 +52,10 @@ async def search_phrase(phrase: str,k: int):
 @app.get("/ragify/{query}")
 async def ragify(query: str):
     return ragifier.ragify_prompt(query)
+
+@app.get("/analyze/{query}")
+async def ragify(query: str):
+    return ragifier.analyze_prompt(query)
 
 @app.get("/infer/{prompt}")
 async def infer(prompt: str):
