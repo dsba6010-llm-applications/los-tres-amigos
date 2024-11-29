@@ -5,6 +5,7 @@ import os
 from openai_embedder import OpenAIEmbedder
 from openai_ragifier import OpenAIRAGifier
 import json
+from copy import deepcopy
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 
 logging.basicConfig(
@@ -58,5 +59,23 @@ async def ragify(query: str):
     return ragifier.analyze_prompt(query)
 
 @app.get("/infer/{prompt}")
-async def infer(prompt: str):
-    return ragifier.process_prompt(prompt)
+async def infer(prompt: str, verbose: bool = False):
+    result =  ragifier.process_prompt(prompt)
+    if verbose:
+        return result
+    else:
+        summary = {
+            "answer": result["answer"],
+            "ragified_prompt": {
+                "retrieval": result["ragified_prompt"]["retrieval"],
+                "relevant_content": list()
+            },
+            "full_response": result["full_response"]
+            
+        }
+        for doc in result["ragified_prompt"]["relevant_content"]:
+            obj = deepcopy(doc)
+            del(obj["content"])
+            summary["ragified_prompt"]["relevant_content"].append(obj)
+        return summary
+
