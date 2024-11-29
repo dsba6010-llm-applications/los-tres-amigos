@@ -67,6 +67,7 @@ async def infer(prompt: str, verbose: bool = False):
         summary = {
             "answer": result["answer"],
             "ragified_prompt": {
+                "prompt": result["ragified_prompt"]["prompt"], 
                 "retrieval": result["ragified_prompt"]["retrieval"],
                 "relevant_content": list()
             },
