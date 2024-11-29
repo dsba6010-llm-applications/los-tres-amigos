@@ -101,6 +101,11 @@ class OpenAIRAGifier(RAGIfier):
             "full_response": response
         }
 
+    def quoted_or_join(self,words):
+        phrases=list()
+        for word in words:
+            phrases.append(f'"{word}"')
+        return " OR ".join(phrases)
 
     def ragify_prompt(self,prompt):
         retrieval = self.analyze_prompt(prompt)["retrieval"]
@@ -108,8 +113,20 @@ class OpenAIRAGifier(RAGIfier):
 
         logger.info("BUILDING QUERY")
         phrases = retrieval["search_words"]
-        query_string = " OR ".join(phrases)  # Combine phrases with OR
-        query = QueryParser("content", self.store.i_indexes[sylstr.KW_INDEX].schema).parse(query_string)
+        query = QueryParser("content", self.store.i_indexes[sylstr.KW_INDEX].schema).parse(self.quoted_or_join(phrases))
+        if "metadata_fields" in retrieval and retrieval["metadata_fields"]:
+            logger.info(f'need to search on {retrieval["metadata_fields"].keys()}')
+            sub_queries=list()
+            sub_queries.append(query)
+            for field in retrieval["metadata_fields"]:
+                if not retrieval["metadata_fields"][field]:
+                    continue
+                logger.info(f"Adding {field}")
+                query = QueryParser(field, self.store.i_indexes[sylstr.KW_INDEX].schema).parse(self.quoted_or_join(retrieval["metadata_fields"][field]))
+                sub_queries.append(query)
+
+            query = And(sub_queries)
+
         logger.info("QUERY BUILT")
         i_results = self.store.keyword_search(sylstr.KW_INDEX,query)
         logger.info(f"QUERY RESULTS: {i_results}")
@@ -149,6 +166,7 @@ class OpenAIRAGifier(RAGIfier):
         ragified_prompt = {
             "system_prompt": "Please use the 'relevant_content' to respond to the prompt. Higher 'relevance' implies greater importance.",
             "prompt": prompt,
+            "retrieval": retrieval,
             "relevant_content": raw_docs
         }
        
