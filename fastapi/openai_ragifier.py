@@ -15,6 +15,7 @@ from whoosh.query import Or, And, Term
 import logging
 logger = logging.getLogger(__name__)
 MAX_DOCS=5
+WEIGHT_FACTOR=20 # Divide the hit score by 20
 MODEL_ID='gpt-4o-mini'
 # Code Advice from https://chatgpt.com/share/6748b4cb-5994-8007-8390-eeaca6cbbeb9
 # WHOOSH code advice from https://chatgpt.com/share/6749d486-cb68-8007-b163-281e20e4a9b3
@@ -111,13 +112,10 @@ class OpenAIRAGifier(RAGIfier):
         query = QueryParser("content", self.store.i_indexes[sylstr.KW_INDEX].schema).parse(query_string)
         logger.info("QUERY BUILT")
         i_results = self.store.keyword_search(sylstr.KW_INDEX,query)
-        logger.info(f"QUERY EXECUTED: {i_results}")
-        return {
-            "i": i_results,
-            "v": v_results
-        }
+        logger.info(f"QUERY RESULTS: {i_results}")
+
         raw_docs = list()
-        for item in results:
+        for item in v_results:
             obj=dict()
             obj["id"] = item["item"]
 
@@ -127,12 +125,29 @@ class OpenAIRAGifier(RAGIfier):
             obj['instructor']=chunk.metadata["instructor"]
             obj['content']=chunk.get_v_content()
             obj["semantic_distance"]=item["distance"]
+            obj["v_relevance"] = 1 / (1 + item["distance"])  # Compute relevance score
             obj["relevance"] = 1 / (1 + item["distance"])  # Compute relevance score
             raw_docs.append(obj)
 
+        for hit in i_results:
+            obj=dict()
+            #logger.info(f"   {hit}")
+            obj['id'] = hit['id']
+
+            chunk = self.store.corpus.partitions['syllabi-full'].chunks[f'{hit["id"]}.full']
+            obj['course_number'] = hit['course_number']
+            obj['course_title'] = hit['course_title']
+            obj['instructor'] = hit['instructor']
+            obj['content']=chunk.get_i_content()
+            obj['hit_score'] = hit.score  # Access the relevance score
+            obj["i_relevance"] = hit.score / WEIGHT_FACTOR  # Compute relevance score
+            obj["relevance"] = hit.score / WEIGHT_FACTOR  # Compute relevance score
+            raw_docs.append(obj)
+
+        
         raw_docs.sort(key=lambda x: x["relevance"], reverse=True)
         ragified_prompt = {
-            "system_prompt": "Please use the 'relevant_content' to respond to the prompt. Higher 'relevance' implies greater importance. Semantic distance is inversely proportional to relevance.",
+            "system_prompt": "Please use the 'relevant_content' to respond to the prompt. Higher 'relevance' implies greater importance.",
             "prompt": prompt,
             "relevant_content": raw_docs
         }
@@ -148,7 +163,7 @@ class OpenAIRAGifier(RAGIfier):
                 {"role": "user", "content": ragified_prompt["prompt"]},
                 {"role": "assistant", "content": "\n\n".join(
                     f"{doc['course_title']} ({doc['course_number']}), Instructor: {doc['instructor']}: {doc['content']} "
-                    f"(Semantic Distance: {doc['semantic_distance']}, Relevance: {doc['relevance']:.2f})"
+                    f"(Relevance: {doc['relevance']:.2f})"
                     for doc in ragified_prompt["relevant_content"]
                 )}
             ]
