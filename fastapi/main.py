@@ -60,6 +60,7 @@ async def ragify(query: str):
 
 @app.get("/infer/{prompt}")
 async def infer(prompt: str, verbose: bool = False):
+    logger.info(f"PROMPT: {prompt}")
     result =  ragifier.process_prompt(prompt)
     if verbose:
         return result
@@ -78,5 +79,13 @@ async def infer(prompt: str, verbose: bool = False):
             obj = deepcopy(doc)
             del(obj["content"])
             summary["ragified_prompt"]["relevant_content"].append(obj)
+        logger.info(f"""==== Response ====
+====== ANSWER ======
+{summary['answer']}
+===== RAGIFIED PROMPT =====
+{json.dumps(summary['ragified_prompt'],indent=2)}
+===== FULL RESPONSE =====
+{summary['full_response']}
+===== END =====""")
         return summary
 
