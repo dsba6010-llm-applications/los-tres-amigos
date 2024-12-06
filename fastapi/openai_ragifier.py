@@ -164,7 +164,10 @@ class OpenAIRAGifier(RAGIfier):
         
         raw_docs.sort(key=lambda x: x["relevance"], reverse=True)
         ragified_prompt = {
-            "system_prompt": "Please use the 'relevant_content' to respond to the prompt. Higher 'relevance' implies greater importance.",
+            "system_prompt": """Please use the 'relevant_content' to answer the question posed by the prompt. 
+Higher 'relevance' implies greater importance. 
+If the prompt implies knowlege from a previous question, it is important to remind the user in a respectul and  
+helpful manner that you have no recollection of previous questions and answers.""",
             "prompt": prompt,
             "retrieval": retrieval,
             "relevant_content": raw_docs
