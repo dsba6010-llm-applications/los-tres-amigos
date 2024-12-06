@@ -86,6 +86,7 @@ class OpenAIRAGifier(RAGIfier):
               - instructor: name of the instructor
               - course_number: Course number (just a number without the DSBA)
               - course_title: Title of the course
+            if the user prompt implies knowledge a previous prompt produce an empty semantic_phrase, search_words and metadata.
         """
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",  # Or the model of your choice
@@ -109,7 +110,10 @@ class OpenAIRAGifier(RAGIfier):
 
     def ragify_prompt(self,prompt):
         retrieval = self.analyze_prompt(prompt)["retrieval"]
-        v_results = self.store.semantic_search(sylstr.CD_CONTENT,self.store.cached_embedder.get_embedding(retrieval["semantic_phrase"],query_convert=True),MAX_DOCS)
+        if not retrieval["semantic_phrase"]:
+            v_results=list()
+        else:
+            v_results = self.store.semantic_search(sylstr.CD_CONTENT,self.store.cached_embedder.get_embedding(retrieval["semantic_phrase"],query_convert=True),MAX_DOCS)
 
         logger.info("BUILDING QUERY")
         phrases = retrieval["search_words"]
