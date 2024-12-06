@@ -167,7 +167,7 @@ class OpenAIRAGifier(RAGIfier):
             "system_prompt": """Please use the 'relevant_content' to answer the question posed by the prompt. 
 Higher 'relevance' implies greater importance. 
 If the prompt implies knowlege from a previous question, it is important that instead of trying to answer the question, you remind the user in a respectul and  
-helpful manner that you have no recollection of previous questions and answers.""",
+helpful manner that you have no recollection of previous questions and answers. Never try to guess it you do not know the answer""",
             "prompt": prompt,
             "retrieval": retrieval,
             "relevant_content": raw_docs
