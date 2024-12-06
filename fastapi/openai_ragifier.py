@@ -86,8 +86,9 @@ class OpenAIRAGifier(RAGIfier):
               - instructor: name of the instructor
               - course_number: Course number (just a number without the DSBA)
               - course_title: Title of the course
-            If the user prompt implies knowledge a previous prompt produce an empty semantic_phrase, search_words and metadata. If the user names a specific course number, instructor or course title, then provide the information for a search
         """
+        #  If the user prompt implies knowledge a previous prompt produce an empty semantic_phrase, search_words and metadata. If the user names a specific course number, instructor or course title, then provide the information for a search
+
         response = self.client.chat.completions.create(
             model="gpt-4o-mini",  # Or the model of your choice
             messages=[
