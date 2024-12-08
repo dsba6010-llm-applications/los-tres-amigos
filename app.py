@@ -39,32 +39,6 @@ if not st.session_state.disclaimer_accepted:
 else:
     # Main application function
     def main():
-        # Sidebar content (always visible)
-        with st.sidebar:
-            st.header("About")
-            st.markdown(
-                """
-                This chatbot helps answer questions about DSBA courses at UNC Charlotte. 
-                It uses RAG (Retrieval Augmented Generation) to provide accurate information
-                from course syllabi.
-                """
-            )
-            st.header("Available Courses")
-            try:
-                response = requests.get(f"{API_URL}/c_store")
-                if response.status_code == 200:
-                    courses = response.json()
-                    for doc_id, course in courses.items():
-                        metadata = course["chunks"][f"{doc_id}.full"]["metadata"]
-                        st.markdown(f"- **{metadata['course_number']}**: {metadata['course_title']}")
-                else:
-                    st.warning("Unable to load course list")
-            except Exception as e:
-                st.warning(f"Error loading course list: {str(e)}")
-
-            # Feedback button
-            if st.button("Feedback Form"):
-                webbrowser.open_new_tab("https://forms.gle/Uz7M3xpVsdKe2NPz6")
 
         # Main content
         st.image("image.png")  # Add logo with controlled width
@@ -113,6 +87,32 @@ else:
                 st.markdown(f"**Question:** {chat['question']}")
                 st.markdown(f"**Answer:** {chat['answer']}")
                 st.markdown("---")
+
+
+        # Add sidebar with additional features
+        with st.sidebar:
+            st.header("About")
+            st.markdown("""
+            This chatbot helps answer questions about DSBA courses at UNC Charlotte.
+            It uses RAG (Retrieval Augmented Generation) to provide accurate information
+            from course syllabi.
+            """)
+            
+            # Add course list from syllabi
+            st.header("Available Courses")
+            try:
+                response = requests.get(f"{API_URL}/c_store")
+                if response.status_code == 200:
+                    courses = response.json()
+                    for doc_id in courses:
+                        course_info = courses[doc_id]["chunks"][f"{doc_id}.full"]["metadata"]
+                        st.markdown(f"- {course_info['course_number']}: {course_info['course_title']}")
+            except:
+                st.warning("Unable to load course list")
+
+            # Feedback button
+            if st.button("Feedback Form"):
+                webbrowser.open_new_tab("https://forms.gle/Uz7M3xpVsdKe2NPz6")
 
         # Run the main application
     main()
