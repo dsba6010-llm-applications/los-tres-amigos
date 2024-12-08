@@ -23,6 +23,7 @@ The chatbot is designed to assist student with answering questions related to co
 To begin working on this project:
 
 1. Clone the repository to your local system via `git clone`
+2. Run 'streamlit run app.py'
 
 ## Usage
 
