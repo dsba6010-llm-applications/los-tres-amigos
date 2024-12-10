@@ -97,22 +97,64 @@ else:
             It uses RAG (Retrieval Augmented Generation) to provide accurate information
             from course syllabi.
             """)
-            
-            # Add course list from syllabi
-            st.header("Available Courses")
-            try:
-                response = requests.get(f"{API_URL}/c_store")
-                if response.status_code == 200:
-                    courses = response.json()
-                    for doc_id in courses:
-                        course_info = courses[doc_id]["chunks"][f"{doc_id}.full"]["metadata"]
-                        st.markdown(f"- {course_info['course_number']}: {course_info['course_title']}")
-            except:
-                st.warning("Unable to load course list")
-
-            # Feedback button
             if st.button("Feedback Form"):
                 webbrowser.open_new_tab("https://forms.gle/Uz7M3xpVsdKe2NPz6")
+            # Add course list from syllabi
+            emoji_link = """
+            <div style="text-align: center;">
+                <a href="https://dsba.charlotte.edu/syllabi/" target="_blank" style="text-decoration: none;", title="Go to List of DSBA Syllabi">
+            📃
+                </a>
+                <a href="https://dsba.charlotte.edu/curriculum/course-catalog/" target="_blank" style="text-decoration: none; margin: 0 10px;", title="Go to Course Catalog">
+                🏫
+                </a>
+            </div>
+            """
+
+# Add the clickable emoji to the sidebar
+            st.sidebar.markdown(emoji_link, unsafe_allow_html=True)
+            st.markdown("**Required Courses**")
+            st.markdown("""
+            - DSBA 5122 - Visual Analytics and Storytelling 
+            - DSBA 6156 - Applied Machine Learning
+            - DSBA 6160 - Database Systems for Data Scientists
+            - DSBA 6201 - Business Intelligence and Analytics
+            - DSBA 6211 - Advanced Business Analytics
+            - DSBA 6276 - Strategic Business Analytics
+            """)
+
+            st.markdown("**Data Science Elective Courses**")
+            st.markdown("""
+            - DSBA 6155 - Knowledge-Based Systems
+            - DSBA 6162 - Data Mining
+            - DSBA 6165 - Artificial Intelligence and Deep Learning
+            - DSBA 6188 - Text Mining and Information Retrieval
+            - DSBA 6190 - Cloud Computing for Data Analysis
+            - DSBA 6345 - Modern Data Science Systems
+            - DSBA 6322 - Complex Adaptive Systems
+            - DSBA 6326 - Network Science
+            """)
+
+            st.markdown("**Business Analytics Elective Courses**")
+            st.markdown("""
+            - DSBA 6100 - Big Data Analytics for Competitive Advantage
+            - DSBA 6112 - Graduate Econometrics
+            - DSBA 6122 - Decision Modeling and Analysis
+            - DSBA 6207 - Business Project Management
+            - DSBA 6208 - Supply Chain Management
+            - DSBA 6213 - Applied Healthcare Business Analytics
+            - DSBA 6277 - Social Media Marketing and Analytics
+            - DSBA 6284 - Digital Marketing Analytics
+            """)
+
+            st.markdown("**Other Elective Courses**")
+            st.markdown("""
+            - DSBA 6010 - Special Topics in Data Science and Business Analytics
+            - DSBA 6115 - Statistical Learning with Big Data 
+            - DSBA 6170 - Ethics, Privacy, Security and Governance of Big Data 
+            """)
+
+
 
         # Run the main application
     main()
