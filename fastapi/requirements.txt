@@ -1,3 +1,19 @@
+<<<<<<< HEAD
+fastapi          # Web framework for building APIs
+uvicorn          # ASGI server for running FastAPI applications
+langchain        # Framework for developing applications with LLMs
+faiss-cpu        # Vector store for efficient similarity search
+sentence-transformers  # For creating embeddings
+pypdf            # For reading PDF files
+python-dotenv    # For loading environment variables
+huggingface_hub  # For accessing Hugging Face models and data
+transformers     # For using transformer models
+pydantic         # For data validation and settings management
+requests         # For making HTTP requests to the Modal API
+modal            # For interacting with Modal's cloud services
+langfuse	 # tracing
+python-dotenv
+=======
 ordered-set
 faiss-cpu
 whoosh
@@ -5,6 +21,7 @@ openai
 tokenizers
 fastapi[standard]
 transformers
+<<<<<<< HEAD
 lightgbm
 langchain
 langchain_core
@@ -13,3 +30,8 @@ gunicorn
 google-generativeai
 langchain_openai
 pydantic
+=======
+tensorflow
+lightgbm
+>>>>>>> e8481777142a38087a114d45c6bdcf03714f26d3
+>>>>>>> 092bc688c79da6bc360cbfe3be3da32a60d6a276
